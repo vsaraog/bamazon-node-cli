@@ -1,0 +1,25 @@
+{
+  "name": "bamazon-node-cli",
+  "version": "1.0.0",
+  "description": "Retail store inventory front-end in Nodejs CLI",
+  "main": "bamazonCustomer.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/vsaraog/bamazon-node-cli.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/vsaraog/bamazon-node-cli/issues"
+  },
+  "homepage": "https://github.com/vsaraog/bamazon-node-cli#readme",
+  "dependencies": {
+    "columnify": "^1.5.4",
+    "inquirer": "^6.0.0",
+    "mysql": "^2.16.0"
+  }
+}
