@@ -64,7 +64,7 @@ function createNewDepartment() {
             const questions = getNewDeptQuestions(items);
     
             inquirer.prompt(questions).then(answers => {
-                console.log("***DEBUG***", answers);
+                // console.log("***DEBUG***", answers);
 
                 let sql = "insert into departments(department_name, over_head_costs) values(?, ?)";
                 const cost = answers.cost;

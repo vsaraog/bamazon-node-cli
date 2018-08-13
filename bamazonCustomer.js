@@ -21,7 +21,7 @@ function getUserInput() {
         printItems(resp);
         prompUser(resp).then( () => {
             connection.end( () => {
-                console.log("GoodBye!");
+                console.log(clc.green("GoodBye!"));
             })
         }).catch(e => { 
             console.log(e);
@@ -69,11 +69,12 @@ function prompUser(items) {
                 console.log(clc.green("----------------------"));
                 console.log(clc.green("Insufficient quantity!"));
                 console.log(clc.green("----------------------"));
+                resolve();
             }
             else {
                 const itemPrice = parseFloat(elems[0].price)
                 const totalCost = purchasedUnits * itemPrice;
-                let query = connection.query("UPDATE products SET ?, product_sales = product_sales + ? WHERE ?",
+                let query = connection.query("UPDATE products SET ?, product_sales = IFNULL(product_sales, 0) + ? WHERE ?",
                     [
                         { stock_quantity: remainingUnits },
                         totalCost,
