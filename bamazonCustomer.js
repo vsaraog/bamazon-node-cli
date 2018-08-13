@@ -1,7 +1,9 @@
 let mysql = require("mysql");
 let inquirer = require("inquirer");
 let columnify = require('columnify')
-let conn = require("./conn-setting");
+let clc = require("cli-color");
+
+const conn = require("./conn-setting");
 
 let connection = mysql.createConnection(conn.mysqlConn);
 connection.connect(function(err) {
@@ -11,7 +13,8 @@ connection.connect(function(err) {
 
 function getUserInput() {
     let query = connection.query("select P.*, D.department_name from products P" +
-    " inner join departments D on D.department_id = P.dept_id", 
+    " inner join departments D on D.department_id = P.dept_id" + 
+    " order by P.item_id", 
     function (err, resp) {
         if (err) throw err;
         // console.log(resp);
@@ -19,19 +22,19 @@ function getUserInput() {
         prompUser(resp);
     });
 
-    console.log("***DEBUG***", query.sql);
+    // console.log("***DEBUG***", query.sql);
 }
 
 function printItems(items) {
-    // items.forEach(e => {
-    //     console.log("Id:", e.item_id, 
-    //     ", Name: ", e.product_name,
-    //     ", Price: ", e.price);
-    // });
-
     console.log(columnify(items, {
-        columns: ['product_name', 'department_name', 'price'],
+        columns: ['item_id', 'product_name', 'department_name', 'price'],
         config: {
+            item_id: {
+                headingTransform: () => {
+                    return "ID";
+                },
+                minWidth: 5
+            },
             product_name: {
                 headingTransform: () => {
                     return "PRODUCT";
@@ -79,39 +82,49 @@ function prompUser(items) {
         message: "Number of units that you want to buy?",
         type: "input",
         name: "units", 
-        validate: function(value) {
-            if (/^[0-9]+$/.test(value) === false) {
-                console.log(" Number of units should be an integer");
-                return false;
-            }
-            else if (value == 0) {
-                console.log(" Number should be greater than 0");
-                return false;
-            }
-            else {
-                return true;
-            }
-        }
+        validate: validateInteger 
     }];
 
     inquirer.prompt(questions).then(answers => {
         const elems = items.filter(it => {return (it.item_id == answers.itemId)});
-        console.log(elems);
+        // console.log("****DEBUG****", elems);
         const purchasedUnits = parseInt(answers.units);
         const remainingUnits = parseInt(elems[0].stock_quantity) - purchasedUnits;
         if (remainingUnits < 0) {
             console.log("Insufficient quantity!");
         }
         else {
-            let query = connection.query("UPDATE products SET ? WHERE ?",
-                [{ stock_quantity: remainingUnits }, { item_id: parseInt(answers.itemId) }],
+            const itemPrice = parseFloat(elems[0].price)
+            const totalCost = purchasedUnits * itemPrice;
+            let query = connection.query("UPDATE products SET ?, product_sales = product_sales + ? WHERE ?",
+                [
+                    { stock_quantity: remainingUnits }, 
+                    totalCost,
+                    { item_id: parseInt(answers.itemId) }
+                ],
                 function (err, resp, fields) {
                     if (err) throw err;
-                    console.log("Total cost: ", purchasedUnits * parseFloat(elems[0].price));
+                    const msg = clc.red(purchasedUnits) + " items bought at the price of " + clc.red(itemPrice) + " each";
+                    console.log(msg);
+                    console.log("Total cost: " + clc.red(totalCost));
                 });
 
             // console.log("***DEBUG***", query.sql);
         }
         return true;
     });
+}
+
+function validateInteger(value) {
+    if (/^[0-9]+$/.test(value) === false) {
+        console.log(" Number of units should be an integer");
+        return false;
+    }
+    else if (value == 0) {
+        console.log(" Number should be greater than 0");
+        return false;
+    }
+    else {
+        return true;
+    }
 }

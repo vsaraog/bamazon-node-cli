@@ -20,3 +20,5 @@ CREATE TABLE products (
     PRIMARY KEY(item_id),
     FOREIGN KEY(dept_id) REFERENCES departments(department_id)
 );
+
+ALTER TABLE products ADD product_sales DECIMAL(15,2);

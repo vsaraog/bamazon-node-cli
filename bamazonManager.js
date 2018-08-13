@@ -8,33 +8,8 @@ let connection = mysql.createConnection(conn.mysqlConn);
 connection.connect(function(err) {
     if (err) throw err;
 
-    getUserInput(); // VIK_DEBUG: Uncomment later on
-    // testPromise(); // VIK_DEBUG
+    getUserInput(); 
 })
-
-function testPromise() {
- 
-    let myPromise = returningPromise();
-    myPromise.then(() => {
-        throw new Error('Something failed');
-            
-        console.log('Do this');
-    })
-    .catch((err) => {
-        console.log('Do that');
-    })
-    .then(() => {
-        console.log('Do this, no matter what happened before');
-    });
-}
-
-function returningPromise() {
-    return new Promise((resolve, reject) => {
-        console.log('Initial');
-    
-        resolve();
-    })
-}
 
 function getUserInput() {
     let userOptions = [
@@ -93,7 +68,7 @@ function getLowInventory() {
 
 function addToInventory() {
 
-    console.log(arguments.callee.name);
+    // console.log(arguments.callee.name);
     let queryPromise = new Promise( (resolve, reject) => {
         runSelectQuery("select * from products").then(resp => {
             let items = [];
@@ -188,7 +163,7 @@ function addNewProduct() {
             if (err) throw err;
             console.log("Product was added");
         });
-    console.log("***DEBUG***", query.sql);
+    // console.log("***DEBUG***", query.sql);
 });
     })
 }
